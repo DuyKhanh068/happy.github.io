@@ -377,8 +377,9 @@
         }
 
         function startScan(e) {
+            if (isUnlocked) return; 
+            
             e.preventDefault(); // Tránh bị select text hoặc lỗi zoom trên mobile
-            if (isUnlocked) return;
             
             // Lần đầu chạm vào cũng là lúc tốt nhất để "unlock" audio policy của trình duyệt
             if(audio.paused) {
@@ -389,7 +390,7 @@
                 isScanning = true;
                 
                 scanInterval = setInterval(() => {
-                    progress += 2; // Tăng 2% mỗi 50ms -> Tổng thời gian khoảng 2.5 giây
+                    progress += 4; // Tăng 2% mỗi 50ms -> Tổng thời gian khoảng 2.5 giây
                     
                     if (progress >= 100) {
                         progress = 100;
@@ -403,8 +404,10 @@
         }
 
         function stopScan(e) {
-            if (e) e.preventDefault();
-            if (isUnlocked) return;
+            if (isUnlocked) return; 
+            
+            // Chỉ preventDefault nếu sự kiện có thể hủy, tránh lỗi trên một số trình duyệt
+            if (e && e.cancelable) e.preventDefault(); 
             
             isScanning = false;
             clearInterval(scanInterval);
@@ -413,7 +416,6 @@
             progress = 0;
             updateVisuals();
         }
-
         // Bắt sự kiện chuột (máy tính)
         fingerprintBtn.addEventListener('mousedown', startScan);
         window.addEventListener('mouseup', stopScan);
